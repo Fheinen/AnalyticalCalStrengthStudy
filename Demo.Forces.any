@@ -225,6 +225,11 @@ AnyKinEqSimpleDriver ElbowMotion = {
     AnyDesVar JointAngle = { Val = Main.ArmModel.ROM[0];};
     DesignValues = {{-30*pi/180},{-10*pi/180},{10*pi/180}};
     AnyDesMeasure Strength ={ Val = Main.InterpForceStudy.JointStrength.JointStrength;};
+  AnyOutputFile OutputFile = { FileName = "JointS.txt";
+    AnyVar Strength = .Strength.Val;
+  };
+  
+//#include "Output.any"
   };
 
   
