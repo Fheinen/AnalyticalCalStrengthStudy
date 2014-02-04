@@ -1,0 +1,12 @@
+AnyFolder DesignVars = {
+    #define RminMaxVar(name) AnyFloat name##_rmin = DesignVar(0.5);AnyFloat name##_rmax = DesignVar(1.2);
+    RminMaxVar(bb)  // Biceps Brachii
+    
+    AnyVector RminValues = DesignVar({
+    bb_rmin
+  });
+
+  AnyVector RmaxValues = DesignVar({
+  bb_rmax
+});
+};

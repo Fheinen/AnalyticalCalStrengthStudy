@@ -1,0 +1,271 @@
+
+Main = {
+
+  #include "DesignVars.any"
+  // The actual body model goes in this folder
+  AnyFolder ArmModel = {
+    
+    AnyFolder HillMuscleModel = {
+
+    // Global Reference Frame
+    AnyFixedRefFrame GlobalRef = {
+     AnyDrawRefFrame drw = {};
+      AnyRefNode Shoulder = { 
+        sRel = {0,0,0}; 
+      };
+      AnyRefNode DeltodeusA = { 
+        sRel = {0.05,0,0}; 
+      };
+      AnyRefNode DeltodeusB = { 
+        sRel = {-0.05,0,0}; 
+      };
+      AnyRefNode BicepsLong = { 
+        sRel = {0.1,0,0}; 
+      };
+      AnyRefNode TricepsLong = { 
+        sRel = {-0.1,0,0}; 
+      };
+
+    };  // Global reference frame
+
+    // Segments
+    AnyFolder Segs = {
+
+      
+      AnySeg UpperArm = {
+        r0 = {0,-0.15,0};
+        Mass = 2.0;
+        Jii = {0.01,0.001,0.01};
+        AnyDrawSeg DrwSeg = {};
+        AnyRefNode ShoulderNode = {
+          sRel = {-0,0.2,0}; 
+        };
+        AnyRefNode ElbowNode = {
+          sRel = {0,-0.2,0}; 
+        };
+        AnyRefNode BicepsShort = { 
+          sRel = {0.03,0.12,0}; 
+        };
+
+
+      }; // UpperArm
+
+      
+      AnySeg LowerArm = {
+        r0 = {0.25,-0.3,0};
+        Mass = 2.0;
+        Jii = {0.001,0.02,0.02};
+        AnyRefNode ElbowNode = {
+          sRel = {-0.2,0,0};
+        };
+        AnyRefNode HandNode = {
+          sRel = {0.2,0,0};
+        };
+        AnyRefNode Biceps = { 
+          sRel = {-0.15,0.01,0}; 
+        };
+        AnyRefNode Triceps = { 
+          sRel = {-0.25,-0.05,0}; 
+        };
+        AnyRefNode PalmNode = {
+          sRel = {0.20,0,0};
+          ARel = {{0,0,1},{0,1,0},{-1,0,0}};
+        };
+        AnyDrawSeg DrwSeg = {};
+     }; // LowerArm
+
+   }; // Segs folder
+
+    AnyFolder Jnts = {
+
+      //---------------------------------
+AnyStdJoint Shoulder = {
+
+  AnyRefFrame &UpperArmNode = ..Segs.UpperArm.ShoulderNode;
+  AnyRefFrame &GroundNode = ..GlobalRef.Shoulder;
+};
+
+      AnyRevoluteJoint Elbow = {
+        Axis = z;
+        AnyRefNode &UpperArmNode = ..Segs.UpperArm.ElbowNode;
+        AnyRefNode &LowerArmNode = ..Segs.LowerArm.ElbowNode;
+        
+      }; // Elbow joint
+
+    }; // Jnts folder
+
+
+    AnyFolder Muscles = {
+
+      AnyMuscleModel MusMdl = {
+        F0 = 300;
+      };
+
+      AnyMuscleModel3E MusMdl1 = 
+      {
+        F0 = 3000;
+        Lfbar = 0.30;
+        Gammabar = 0;
+        Epsilonbar = 0.053;
+        Lt0 = 0.4;
+        Fcfast = 5;
+        Jt = 3;
+        Jpe = 3;
+        K1 = 2;
+        K2 = 8;
+        PEFactor = 2;
+      };
+      
+      AnyMuscleModel3E MusMdl2 = 
+      {
+        F0 = 3000;
+        Lfbar = 0.30;
+        Gammabar = 0;
+        Epsilonbar = 0.053;
+        Lt0 = 0.4;
+        Fcfast = 5;
+        Jt = 3;
+        Jpe = 3;
+        K1 = 2;
+        K2 = 8;
+        PEFactor = 2;
+      };
+
+ 
+
+      //---------------------------------
+      AnyViaPointMuscle BicepsShort = {
+        AnyMuscleModel &MusMdl = ..Muscles.MusMdl1;
+        AnyRefNode &Org = ..Segs.UpperArm.BicepsShort;
+        AnyRefNode &Ins = ..Segs.LowerArm.Biceps;
+        AnyDrawMuscle DrwMus = {Bulging = 1; MaxStress = 100000;};
+      };
+
+      //---------------------------------
+
+
+      AnyViaPointMuscle TricepsLong = {
+        AnyMuscleModel &MusMdl = ..Muscles.MusMdl2;
+        AnyRefNode &Org = ..GlobalRef.TricepsLong;
+        AnyRefNode &Ins = ..Segs.LowerArm.Triceps;
+        AnyDrawMuscle DrwMus = {Bulging = 1; MaxStress = 100000;};
+      };
+
+    }; // Muscles folder
+
+
+   // ArmModel
+
+  AnyFolder Loads = {
+    
+        AnyMoment3D JointMoment = 
+    {
+      //RefFrames = ;
+      //Surfaces = ;
+      //KinMeasureArr = {..Orientation, ..Orientation, ..Orientation};
+      //KinMeasureIndexArr = {0, 1, 2};
+      M = {0, 0, -100};
+      //Mlocal = {0, 0, 0};
+      AnyRefFrame &ref = Main.ArmModel.HillMuscleModel.Segs.LowerArm;
+    };
+   
+  };  // Loads folder
+};
+
+AnyVector ROM = DesignVar({-90,0});
+
+AnyKinEqSimpleDriver ElbowMotion = {
+  AnyKinMeasure &ref = Main.ArmModel.HillMuscleModel.Jnts.Elbow;
+  DriverPos = {.ROM[0]};
+  DriverVel = {0};
+  Reaction.Type = {Off};
+};
+
+//      AnyKinEqInterPolDriver ElbowMotion = {
+//        AnyKinMeasureOrg &Jnt = Main.ArmModel.HillMuscleModel.Jnts.Elbow;
+//      Type = PiecewiseLinear;
+//      T = {0,50,100};
+//      Data = {{-50*pi/180,-30*pi/180,-10*pi/180}};
+//      Reaction.Type = {Off};
+//      }; // Elbow driver
+   
+//      AnyVector ROM = DesignVar({-90,0});
+      
+   };
+
+  // A study applying the interpolated force to the wrist
+  // using a detour around a dummy segment
+  AnyBodyStudy InterpForceStudy = {
+    AnyFolder &Model = .ArmModel;
+   InverseDynamics.Criterion.Type = MR_MinMaxStrict;
+    Gravity = {0.0, -9.81, 0.0};
+    tEnd = 100;
+    tStart = 0;
+    nStep = 30;
+  InitialConditions.SolverType = KinSolDeterminate;
+  Kinematics.SolverType = KinSolDeterminate;
+  Kinematics.PosAnalysisOnlyOnOff = On;
+  InitialConditions.PosAnalysisOnlyOnOff = On;
+    
+  AnyFolder JointStrength = {
+    AnyFolder Abicassa = {
+    AnyVar J = 10*231;
+  };
+    AnyVar JointStrength = max(abs(Main.ArmModel.HillMuscleModel.Loads.JointMoment.M))/(Main.InterpForceStudy.MaxMuscleActivity+0.00000001);
+  
+  };
+
+//    AnyForce JointLoad = {
+//      AnyKinMeasure &ref = Main.ArmModel.ElbowMotion;
+//            AnyInt Sign = -round(Main.ArmModel.ElbowMotion.Vel/abs(Main.ArmModel.ElbowMotion.Vel));
+//      F = 10;//*Sign;//(Main.ArmModel.ElbowMotion.Pos*180/pi);
+//  };
+//    
+//        AnyFolder JointStrength = {
+//          AnyVar JointStrength = max(abs(Main.ArmModel.HillMuscleModel.Loads.InterpForce.F))/(Main.InterpForceStudy.MaxMuscleActivity+0.000001);
+//  };
+
+    
+  };
+  
+  AnyParamStudy1D ElbowIsomStrength = 
+  {
+    Analysis = {
+    AnyOperation &ref = Main.InterpForceStudy.InverseDynamics; };
+    AnyDesVar JointAngle = { Val = Main.ArmModel.ROM[0];};
+    DesignValues = {{-10},{-30},{-60}};
+    AnyDesMeasure Strength ={ Val = Main.InterpForceStudy.JointStrength.JointStrength;}; 
+  };
+
+  
+  AnyBodyCalibrationStudy CalibrationStudyTwoStep = {
+    AnyFolder &Model = Main.ArmModel.HillMuscleModel;
+//    AnyFolder &Model2 = Main.ArmModel.HillMuscleModel.Muscles.MusMdl2;
+//       InitialConditions.SolverType = KinSolOverDeterminate;
+
+    RmaxMuscleFiber = {Main.DesignVars.bb_rmax,1.1};
+    RminMuscleFiber = {Main.DesignVars.bb_rmin,0.6};
+    
+    
+    AnyKinEqInterPolDriver HillMuscle =  {
+      AnyKinMeasureOrg &Jnt = Main.ArmModel.HillMuscleModel.Jnts.Elbow;
+      Type = PiecewiseLinear;
+      T = {0,1};
+      Data = {{Main.ArmModel.ROM[0],Main.ArmModel.ROM[1]}};
+      Reaction.Type = {Off};
+    };    
+    nStep = 2;
+  }; // End of study
+
+AnyOperationSequence RunApplication = {
+  AnyOperation &Initialisation = Main.CalibrationStudyTwoStep.InitialConditions;
+//AnyOperationMacro UpdateExpression = {
+//  MacroStr = {
+//    "classoperation Main"+strquote("Update Values")
+//  };
+
+AnyOperation &Calibration =Main.CalibrationStudyTwoStep.FiberAndTendonLengthAdjustment;
+AnyOperation &ParameterStudy = Main.ElbowIsomStrength.ParameterStudy;
+
+};
+};  // Main

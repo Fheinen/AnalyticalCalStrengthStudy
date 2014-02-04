@@ -1,0 +1,139 @@
+// Todo: Write a small description of your model here
+
+Main = {
+  
+  // The actual body model goes in this folder
+  AnyFolder MyModel = {  
+    
+    AnyFolder HillMuscle = {
+      
+      // Global Reference Frame
+      AnyFixedRefFrame GlobalRef = {
+        
+        AnyRefNode Ground = {sRel = {0,0,0};
+          AnyDrawNodes DrwNode = {
+            ScaleXYZ = {0.006,0.006,0.006};
+            RGB = {0, 1, 0};
+          };
+        };
+      };  // Global reference frame
+      
+      AnySeg Seg = {
+        r0 = {0,-0.25,0};
+        Mass = 0;
+        Jii = {0,0,0};
+        AnyRefNode Insertion = {
+          sRel = {0,0,0};
+          AnyDrawNodes DrwNode = {
+            ScaleXYZ = {0.006,0.006,0.006};
+            RGB = {0, 1, 0};
+          };
+        };
+      };
+      
+      AnyPrismaticJoint Rail = {
+        Axis = y;
+        AnyFixedRefFrame &ref = .GlobalRef;
+        AnyRefNode &Slider = .Seg.Insertion;
+      };//Rail
+      
+      
+      
+      AnyForce3D ExternalForce = {
+        AnyRefNode &Node = .Seg.Insertion;
+        F = {0,-500,0};
+      };
+      
+      
+      AnyViaPointMuscle HillMuscle1 = {
+        AnyMuscleModel &MusMdl = .MusclePar;
+        AnyRefNode &Org = .GlobalRef.Ground;
+        AnyRefNode &Ins = .Seg.Insertion;
+        AnyDrawMuscle DrwMus = {Bulging=1;};
+      };
+      
+      AnyMuscleModel3E MusclePar = {
+        F0=9000;                //Maximum force output at optimum fiber length
+        Lfbar=0.07;             //Optimum fiber length
+        Lt0 = 0.10;             //Tendon slack length
+        Gammabar= 0;            //Pennation angle in radian
+        Epsilonbar = 0.053;      //Tendon strain at F0
+        K1=8;                  //Factor for determining shortening speed at optimum length
+        K2=2;                   //Factor for determining shortening speed at optimum length
+        Fcfast =0.4;            //Factor for determining shortening speed at optimum length
+        Jt =3.0;                //Shape parameter for the tendon stiffness
+        Jpe =3.0;               //Shape parameter for the parallel stiffness
+        PEFactor =2.0;            //Parameter for influence of parallel stiffness
+      };
+      
+    };
+    
+    AnyKinEqSimpleDriver SliderMotion = {
+      AnyPrismaticJoint &Jnt = .HillMuscle.Rail;
+      DriverPos = {-0.25};
+      AnyVar V = 1;
+      DriverVel = {V};
+      Reaction.Type = {Off};
+    };//SliderMotion  
+    
+    
+
+  };// MyModel
+  
+  // The study: Operations to be performed on the model
+  AnyBodyStudy MyStudy = {
+    AnyFolder &Model = .MyModel;
+    Gravity = {0.0, -9.81, 0.0};
+    tEnd = 0.08/(Main.MyModel.SliderMotion.V);
+    nStep = 100;
+    InverseDynamics.Criterion.Type = MR_MinMaxStrict;
+    
+    AnyFolder JointStrength = {
+    AnyVar JointStrength = max(abs(Main.MyModel.HillMuscle.ExternalForce.F))/(Main.MyStudy.MaxMuscleActivity+0.000001);
+  };
+  };
+  
+
+  AnyBodyCalibrationStudy CalibrationStudyOneStep = {
+    AnyFolder &Model = Main.MyModel.HillMuscle;
+    
+    AnyKinEqSimpleDriver CalibrationMotion = {
+      AnyPrismaticJoint &Jnt = Main.MyModel.HillMuscle.Rail;
+      DriverPos = {-0.30};
+      AnyVar V = 0.0;
+      DriverVel = {V};
+      Reaction.Type = {Off};
+    }; 
+    
+    nStep = 1;
+  }; // End of study
+  
+  AnyBodyCalibrationStudy CalibrationStudyTwoStep = {
+    AnyFolder &Model = Main.MyModel.HillMuscle;
+    
+    RmaxMuscleFiber = {1.2};
+    RminMuscleFiber = {0.5};
+    
+    
+    AnyKinEqInterPolDriver HillMuscle =  {
+      AnyKinMeasureOrg &Jnt = Main.MyModel.HillMuscle.Rail;
+      Type = PiecewiseLinear;
+      T = {0,1};
+      Data = {{-0.15,-0.25}};
+      Reaction.Type = {Off};
+    };    
+    nStep = 2;
+  }; // End of study
+  
+  
+};  // Main
+
+
+
+
+
+
+
+
+
+
