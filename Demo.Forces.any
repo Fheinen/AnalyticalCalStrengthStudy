@@ -229,13 +229,11 @@ AnyKinEqSimpleDriver ElbowMotion = {
     AnyVar Strength = .Strength.Val;
   };
   
-//#include "Output.any"
   };
 
   
   AnyBodyCalibrationStudy CalibrationStudyTwoStep = {
     AnyFolder &Model = Main.ArmModel.HillMuscleModel;
-//    AnyFolder &Model2 = Main.ArmModel.HillMuscleModel.Muscles.MusMdl2;
 //       InitialConditions.SolverType = KinSolOverDeterminate;
 
     RmaxMuscleFiber = {Main.DesignVars.bb_rmax,1.1};
@@ -254,11 +252,7 @@ AnyKinEqSimpleDriver ElbowMotion = {
 
 AnyOperationSequence RunApplication = {
   AnyOperation &Initialisation = Main.CalibrationStudyTwoStep.InitialConditions;
-//AnyOperationMacro UpdateExpression = {
-//  MacroStr = 
-//    "classoperation Main"+strquote("Update Values")
-//  };
-
+    AnyOperationMacro updateExpression = {MacroStr = { "classoperation Main"+ strquote("Update Values")};};
 AnyOperation &Calibration =Main.CalibrationStudyTwoStep.FiberAndTendonLengthAdjustment;
 AnyOperation &ParameterStudy = Main.ElbowIsomStrength.ParameterStudy;
 

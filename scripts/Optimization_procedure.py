@@ -5,7 +5,6 @@ Created on Mon Feb 03 13:32:50 2014
 @author: fh
 """
 
-
 from __future__ import division
 from os import getcwd, path as op
 from numpy import array, sqrt, mean, zeros
@@ -14,7 +13,6 @@ from scipy.optimize import fmin_l_bfgs_b
 
 global iteration_counter
 iteration_counter = 0
-
 
 def setup_study(designvars):
     if designvars is None:
@@ -28,7 +26,7 @@ def setup_study(designvars):
               ]
     outputs =  ['Main.ElbowIsomStrength.Output.Strength.Val']
     return (app, loadmacro, macrocmds, inputs, outputs)
-
+#
 def eval_w_gradient(designvars,*arg):
     pertubation_factor = 10e-4
     global iteration_counter
@@ -46,7 +44,7 @@ def eval_w_gradient(designvars,*arg):
     print 'Objective:', objective
     print 'Gradient:', gradient
     return objective, gradient
-
+#
 def metric(c_isoflex):
     if isinstance(c_isoflex, list):
         c_isoflex = c_isoflex[0]
@@ -55,10 +53,8 @@ def metric(c_isoflex):
     
     m_isoflex = mean(data.isoflexor_normalized,1)
 
-
     norm_factor = c_isoflex[1]
     c_isoflex = c_isoflex/norm_factor
-
 
     try:
         ss_isoflex = sum(((c_isoflex-m_isoflex)/m_isoflex)**2)
@@ -69,10 +65,6 @@ def metric(c_isoflex):
     N_total = len(m_isoflex)
     weight = float(N_total) / array([len(m_isoflex)])
     return sqrt(ss_isoflex*weight[0])
-
-
-
-
 
 if __name__ == '__main__':
     x0 = array([0.5, 1.4])
