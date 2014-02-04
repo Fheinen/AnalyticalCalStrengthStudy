@@ -215,17 +215,7 @@ AnyKinEqSimpleDriver ElbowMotion = {
   
   };
 
-//    AnyForce JointLoad = {
-//      AnyKinMeasure &ref = Main.ArmModel.ElbowMotion;
-//            AnyInt Sign = -round(Main.ArmModel.ElbowMotion.Vel/abs(Main.ArmModel.ElbowMotion.Vel));
-//      F = 10;//*Sign;//(Main.ArmModel.ElbowMotion.Pos*180/pi);
-//  };
-//    
-//        AnyFolder JointStrength = {
-//          AnyVar JointStrength = max(abs(Main.ArmModel.HillMuscleModel.Loads.InterpForce.F))/(Main.InterpForceStudy.MaxMuscleActivity+0.000001);
-//  };
-
-    
+   
   };
   
   AnyParamStudy1D ElbowIsomStrength = 
@@ -233,8 +223,8 @@ AnyKinEqSimpleDriver ElbowMotion = {
     Analysis = {
     AnyOperation &ref = Main.InterpForceStudy.InverseDynamics; };
     AnyDesVar JointAngle = { Val = Main.ArmModel.ROM[0];};
-    DesignValues = {{-30*pi/180},{10*pi/180}};
-    AnyDesMeasure Strength ={ Val = Main.InterpForceStudy.JointStrength.JointStrength;}; 
+    DesignValues = {{-30*pi/180},{-10*pi/180},{10*pi/180}};
+    AnyDesMeasure Strength ={ Val = Main.InterpForceStudy.JointStrength.JointStrength;};
   };
 
   
@@ -266,6 +256,6 @@ AnyOperationSequence RunApplication = {
 
 AnyOperation &Calibration =Main.CalibrationStudyTwoStep.FiberAndTendonLengthAdjustment;
 AnyOperation &ParameterStudy = Main.ElbowIsomStrength.ParameterStudy;
-#include "Output.any"
+
 };
 };  // Main
