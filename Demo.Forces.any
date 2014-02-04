@@ -172,7 +172,7 @@ AnyStdJoint Shoulder = {
   };  // Loads folder
 };
 
-AnyVector ROM = DesignVar({-90,0});
+AnyVector ROM = DesignVar({-50*pi/180,20*pi/180});
 
 AnyKinEqSimpleDriver ElbowMotion = {
   AnyKinMeasure &ref = Main.ArmModel.HillMuscleModel.Jnts.Elbow;
@@ -201,7 +201,7 @@ AnyKinEqSimpleDriver ElbowMotion = {
     Gravity = {0.0, -9.81, 0.0};
     tEnd = 100;
     tStart = 0;
-    nStep = 30;
+    nStep = 2;
   InitialConditions.SolverType = KinSolDeterminate;
   Kinematics.SolverType = KinSolDeterminate;
   Kinematics.PosAnalysisOnlyOnOff = On;
@@ -233,7 +233,7 @@ AnyKinEqSimpleDriver ElbowMotion = {
     Analysis = {
     AnyOperation &ref = Main.InterpForceStudy.InverseDynamics; };
     AnyDesVar JointAngle = { Val = Main.ArmModel.ROM[0];};
-    DesignValues = {{-10},{-30},{-60}};
+    DesignValues = {{-30*pi/180},{10*pi/180}};
     AnyDesMeasure Strength ={ Val = Main.InterpForceStudy.JointStrength.JointStrength;}; 
   };
 
@@ -260,12 +260,12 @@ AnyKinEqSimpleDriver ElbowMotion = {
 AnyOperationSequence RunApplication = {
   AnyOperation &Initialisation = Main.CalibrationStudyTwoStep.InitialConditions;
 //AnyOperationMacro UpdateExpression = {
-//  MacroStr = {
+//  MacroStr = 
 //    "classoperation Main"+strquote("Update Values")
 //  };
 
 AnyOperation &Calibration =Main.CalibrationStudyTwoStep.FiberAndTendonLengthAdjustment;
 AnyOperation &ParameterStudy = Main.ElbowIsomStrength.ParameterStudy;
-
+#include "Output.any"
 };
 };  // Main

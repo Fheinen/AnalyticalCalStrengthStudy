@@ -1,0 +1,7 @@
+AnyFolder Output = {
+AnyOutputFile Outputfile = 
+{
+  FileName = "JointStrength.txt";
+  AnyVar Strength = Main.ElbowIsomStrength.Strength.Val;
+};
+};
