@@ -1,5 +1,6 @@
 AnyFolder DesignVars = {
-    #define RminMaxVar(name) AnyFloat name##_rmin = DesignVar(0.5);AnyFloat name##_rmax = DesignVar(1.2);
+    #define RminMaxVar(name) AnyFloat name##_rmin = DesignVar(0.7);AnyFloat name##_rmax = DesignVar(1.2);
+    
     RminMaxVar(bb)  // Biceps Brachii
     
     AnyVector RminValues = DesignVar({
@@ -9,4 +10,13 @@ AnyFolder DesignVars = {
   AnyVector RmaxValues = DesignVar({
   bb_rmax
 });
+
+AnyOperationMacro SetInitialGuess = {
+     MacroStr = {"classoperation Main.DesignVars.RminValues"+strquote("Set Value") + 
+     "--value="+strquote("{0.6}"),
+     "classoperation Main.DesignVars.RmaxValues "+strquote("Set Value") + 
+     "--value="+strquote("{1.3}")
+   };
+ };
+
 };

@@ -23,6 +23,6 @@ col0  Main.ElbowIsomStrength.IterationStep
 col1  Main.ElbowIsomStrength.OutputFile.Strength
 ----------------------------------------------------------
 Main.ElbowIsomStrength.IterationStep,Main.ElbowIsomStrength.OutputFile.Strength
-0.000000000000000e+000,1.390043533297622e+002
-1.000000000000000e+000,1.102143311069232e+002
-2.000000000000000e+000,3.673606742132164e+001
+0.000000000000000e+000,1.358575912988057e+002
+1.000000000000000e+000,1.394111976299150e+002
+2.000000000000000e+000,8.652198412032885e+001
